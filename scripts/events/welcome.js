@@ -29,7 +29,7 @@ module.exports = {
 			welcomeMessage: "𝐓𝐡𝐚𝐧𝐤 𝐲𝐨𝐮 𝐟𝐨𝐫 𝐢𝐧𝐯𝐢𝐭𝐢𝐧𝐠 𝐦𝐞 𝐭𝐨 𝐭𝐡𝐞 𝐠𝐫𝐨𝐮𝐩!\n─────⊱◈☘️◈⊰─────\n𝐁𝐨𝐭 𝐏𝐫𝐞𝐟𝐢𝐱: 〖%1〗\n─────⊱◈☘️◈⊰─────\n𝐄𝐧𝐭𝐞𝐫 %1help 𝐭𝐨 𝐬𝐞𝐞 𝐚𝐥𝐥 𝐜𝐨𝐦𝐦𝐚𝐧𝐝𝐬",
 			multiple1: "you",
 			multiple2: "you guys",
-			defaultWelcomeMessage: `𝙃𝙀𝙇𝙇𝙊 {userName}\n─────⊱◈☘️◈⊰─────\n𝙂𝙍𝙊𝙐𝙋 𝙉𝘼𝙈𝙀: {boxName}\n─────⊱◈☘️◈⊰─────`
+			defaultWelcomeMessage: `╭─⌾👋𝙒𝙀𝙇𝘾𝙊𝙈𝙀 𝙐𝙎𝙀𝙍👋\n│{userName}\n│\n𝙂𝙍𝙊𝙐𝙋 𝙉𝘼𝙈𝙀:\n│{boxName}\n╰─────────⌾`
 		}
 	},
 
@@ -114,16 +114,12 @@ module.exports = {
 
 					form.body = welcomeMessage;
 
-					if (threadData.data.welcomeAttachment) {
-						const files = threadData.data.welcomeAttachment;
-						const attachments = files.reduce((acc, file) => {
-							acc.push(drive.getFile(file, "stream"));
-							return acc;
-						}, []);
-						form.attachment = (await Promise.allSettled(attachments))
-							.filter(({ status }) => status == "fulfilled")
-							.map(({ value }) => value);
+					// Add image attachment
+					const imagePath = __dirname + "https://i.ibb.co/QKZT7T5/image.jpg"; // Replace with your image path
+					if (fs.existsSync(imagePath)) {
+						form.attachment = fs.createReadStream(imagePath);
 					}
+
 					message.send(form);
 					delete global.temp.welcomeEvent[threadID];
 				}, 1500);
