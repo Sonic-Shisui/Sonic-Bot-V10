@@ -1,10 +1,11 @@
+{
 "100090405019929": {
     "bank": 8.002020202020202e+512,
     "lastInterestClaimed": 1698376620762,
     "password": "Shisui",
     "loan": 4000,
     "loanPayed": false
-}
+ }
 
 "100095251958169": {
     "bank": 8.002020202020202e+400,
@@ -12,4 +13,5 @@
     "password": "lucky",
     "loan": 4000,
     "loanPayed": false
+ }
 }
