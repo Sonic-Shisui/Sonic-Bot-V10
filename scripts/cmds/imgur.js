@@ -7,7 +7,7 @@ module.exports.config = {
   author: "Lawkey Marvellous",
   countDown: 5,
   role: 0,
-  category: "tools",
+  category: "utility",
   description: "Upload media to get GoatBin link.",
   usages: "Reply to a media file (image, video, etc.)",
 };
