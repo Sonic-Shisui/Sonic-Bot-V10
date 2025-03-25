@@ -1,50 +1,20 @@
-const axios = require('axios');
-
-module.exports = {
+ module.exports = {
 	config: {
 		name: "say",
-		aliases: ["speak"],
 		version: "1.0",
-		author: "Asmit Adk", // configured by ミ★𝐒𝐎𝐍𝐈𝐂✄𝐄𝐗𝐄 3.0★彡
-		countDown: 5,
+		author: "Samir", // Time to wait before executing command again (seconds)
 		role: 0,
-		shortDescription: "Say something Ai will say it clearly",
-		longDescription: "female  Voice in all languages",
-		category: "media",
-		guide: "{pn} {{<say>}}"
+		category: "text",
+		guide: {
+			vi: "Not Available",
+			en: "botsays + (Message You Want To Get)"
+		} 
 	},
 
-	onStart: async function ({ api, message, args, event}) {
-    let lng = "ne,fr,bn,en,in,hi,ar,as,bo,ja,kr,pa,sa,zh,vi,ur,uk,tr,th,ru"
-    let say;
-		if (lng.includes(args[0])) {
-      lng = args[0]
-      args.shift()
-      say = encodeURIComponent(args.join(" "))
-    } else { 
-      say = args.join(" ")
-    }
-	const extractText = () => {
-        if (type === "message_reply") {
-          return event.messageReply.body;
-        } else if (mentions.length > 0) {
-          return mentions[0].body;
-        } else {
-          return chat;
-        }
-      }
-			try {
-				let url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lng}&client=tw-ob&q=${say}`
-
-
-        message.reply({body:"",
-				attachment: await global.utils.getStreamFromURL(url)
-                      })
-				
-					
-			} catch (e) {
-        console.log(e)
-        message.reply(`🎙️🔊`) }
-
+	onStart: async function ({ api, args, event }) {
+	var say = args.join(" ")
+	if (!say) api.sendMessage("Please enter a message", event.threadID, event.messageID)
+	else api.sendMessage(`${say}`, event.threadID, event.messageID);
 	}
+
 };
