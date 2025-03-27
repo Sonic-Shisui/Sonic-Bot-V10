@@ -1,4 +1,4 @@
- const fs = require("fs-extra");
+const fs = require("fs-extra");
 const axios = require("axios");
 const path = require("path");
 const { getPrefix } = global.utils;
@@ -32,7 +32,7 @@ module.exports = {
 
     if (args.length === 0) {
       const categories = {};
-      let msg = "╭──────💿\n│ミ★𝐒𝐎𝐍𝐈𝐂✄𝐄𝐗𝐄 3.0★彡\n╰──────────────💿\n";
+      let msg = "╭──────🦔\n│➣ ✘.𝚂𝙾𝙽𝙸𝙲〈 な\n╰──────────────🦔\n";
 
       msg += `━━━━━━━━━━━━━━━━\n`; // replace with your name 
 
@@ -62,18 +62,11 @@ module.exports = {
       const totalCommands = commands.size;
       msg += `𝐀𝐜𝐭𝐮𝐞𝐥𝐥𝐞𝐦𝐞𝐧𝐭 𝐥𝐞 𝐇𝐞𝐝𝐠𝐞𝐡𝐨𝐠𝐛𝐨𝐭 𝐝𝐢𝐬𝐩𝐨𝐬𝐞 𝐝𝐞 🎶${totalCommands}𝐜𝐨𝐦𝐦𝐚𝐧𝐝𝐞𝐬🎶\n`;
       msg += `𝐒𝐚𝐢𝐬𝐢𝐬 ${prefix}𝐡𝐞𝐥𝐩 𝐬𝐮𝐢𝐯𝐢 𝐝𝐮 𝐧𝐨𝐦 𝐝𝐞 𝐥𝐚 𝐜𝐨𝐦𝐦𝐚𝐧𝐝𝐞 𝐩𝐨𝐮𝐫 𝐚𝐯𝐨𝐢𝐫 𝐩𝐥𝐮𝐬 𝐝𝐞 𝐝𝐞𝐭𝐚𝐢𝐥𝐬 𝐬𝐮𝐫 𝐥𝐚 𝐜𝐨𝐦𝐦𝐚𝐧𝐝𝐞\n━━━━━━━━━━━━━━━\n`;
-      msg += `╭───────⌾\n│📣...|\n│➣ ✘.𝙰𝚁𝙼𝚂𝚃𝚁𝙾𝙽𝙶〈 な\n│🌿| 𝐎𝐰𝐧𝐞𝐫 : \n│ミ★𝐒𝐎𝐍𝐈𝐂✄𝐄𝐗𝐄 3.0★彡\n│🌪| 𝐋𝐢𝐧𝐤'𝐬 𝐅𝐚𝐜𝐞𝐛𝐨𝐨𝐤 :\n│ https://facebook.com/hentai.san.1492\n╰──────────────⌾`; // its not decoy so change it if you want 
+      msg += `╭───────⌾\n│📣...|\n│➣ ✘.𝚂𝙾𝙽𝙸𝙲〈 な\n│🌿| 𝐎𝐰𝐧𝐞𝐫 : \n│ミ★𝐒𝐎𝐍𝐈𝐂✄𝐄𝐗𝐄 3.0★彡\n│🌪| 𝐋𝐢𝐧𝐤'𝐬 𝐅𝐚𝐜𝐞𝐛𝐨𝐨𝐤 :\n│ https://facebook.com/hentai.san.1492\n╰──────────────⌾`; // its not decoy so change it if you want 
 
       const helpListImages = [
-"https://i.ibb.co/XVdqV98/image.jpg",
-
-"https://i.ibb.co/QKZT7T5/image.jpg",
-
-"https://i.ibb.co/KFwHHhW/image.jpg",
-
 "https://i.ibb.co/TcGjWrp/image.gif",
-
-"https://i.ibb.co/zVGD257/image.jpg",
+"http://goatbiin.onrender.com/SOVcPEhh2.gif",
         // Add more image links as needed
       ];
 
