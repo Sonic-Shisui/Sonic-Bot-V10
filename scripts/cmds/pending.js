@@ -11,7 +11,7 @@ module.exports = {
     role: 2,
     shortDescription: "accept pending message",
     longDescription: "accept pending message",
-    category: "utility",
+    category: "Utility",
   },
 
   onReply: async function ({ message, api, event, usersData, Reply }) {
@@ -121,4 +121,95 @@ module.exports = {
             });
           }, messageID);
         } else {
-          return api.sendMessage("[ - ] There are currently
+          return api.sendMessage("[ - ] There are currently no users in the queue", threadID, messageID);
+        }
+      }
+      case "thread":
+      case "-t":
+      case "t":
+      case "Thread": {
+        const permission = global.GoatBot.config.adminBot;
+        if (!permission.includes(event.senderID)) return api.sendMessage("[ OPPS ] You don't have Permission to use this command!", event.threadID, event.messageID);
+        const { threadID, messageID } = event;
+        const commandName = this.config.name;
+        var msg = "", index = 1;
+
+        try {
+          var spam = await api.getThreadList(100, null, ["OTHER"]) || [];
+          var pending = await api.getThreadList(100, null, ["PENDING"]) || [];
+        } catch (e) {
+          return api.sendMessage("[ ERR ] can't get the current list", threadID, messageID);
+        }
+
+        const list = [...spam, ...pending].filter(group => group.isSubscribed && group.isGroup);
+
+        for (const single of list) {
+          const threadName = single.name || "Unknown";
+          msg += `${index++}/ ${threadName}(${single.threadID})\n`;
+        }
+
+        if (list.length !== 0) {
+          return api.sendMessage(`❯ Total number of groups to be approved: ${list.length} the group \n❯ Reply to the order number below to browse !!!\n${msg}`, threadID, (error, info) => {
+            global.GoatBot.onReply.set(info.messageID, {
+              commandName,
+              messageID: info.messageID,
+              author: event.senderID,
+              pending: list
+            });
+          }, messageID);
+        } else {
+          return api.sendMessage("[ - ] There are currently no groups in the queue", threadID, messageID);
+        }
+      }
+      case "all":
+      case "a":
+      case "-a":
+      case "al": {
+        const permission = global.GoatBot.config.adminBot;
+        if (!permission.includes(event.senderID)) return api.sendMessage("[ OPPS ] You don't have Permission to use this command!!", event.threadID, event.messageID);
+        const { threadID, messageID } = event;
+        const commandName = this.config.name;
+        var msg = "", index = 1;
+
+        try {
+          var spam = await api.getThreadList(100, null, ["OTHER"]) || [];
+          var pending = await api.getThreadList(100, null, ["PENDING"]) || [];
+        } catch (e) {
+          return api.sendMessage("[ ERR ] Can't get the waiting list", threadID, messageID);
+        }
+
+        const listThread = [...spam, ...pending].filter(group => group.isSubscribed && group.isGroup);
+        const listUser = [...spam, ...pending].filter(group => group.isGroup === false);
+        const list = [...spam, ...pending].filter(group => group.isSubscribed);
+
+        for (const single of list) {
+          let displayName;
+          if (single.isGroup) {
+            displayName = single.name || "Unknown";
+          } else {
+            if (single.threadID >= 1000) {
+              const userName = await usersData.getName(single.threadID);
+              displayName = userName || "Unknown";
+            } else {
+              displayName = "Unknown";
+            }
+          }
+          msg += `${index++}/ ${displayName}(${single.threadID})\n`;
+        }
+
+        if (list.length !== 0) {
+          return api.sendMessage(`❯ Total number of Users & Threads to be approved: ${list.length} User & Thread \n❯ Reply to the order number below to browse !!!\n${msg}`, threadID, (error, info) => {
+            global.GoatBot.onReply.set(info.messageID, {
+              commandName,
+              messageID: info.messageID,
+              author: event.senderID,
+              pending: list
+            });
+          }, messageID);
+        } else {
+          return api.sendMessage("[ - ] There are currently no User & Thread in the queue", threadID, messageID);
+        }
+      }
+    }
+  }
+};
