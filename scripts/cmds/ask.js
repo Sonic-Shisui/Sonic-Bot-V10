@@ -1,47 +1,69 @@
 const axios = require('axios');
 
-const Prefixes = [
-  'sonic'
-];
+const apiKey = "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"; // API Key Groq
+const url = "https://api.groq.com/openai/v1/chat/completions"; // Groq API endpoint
 
-module.exports = {
-  config: {
-    name: "ask",
-    version: 1.0,
-    author: "ミ★𝐒𝐎𝐍𝐈𝐂✄𝐄𝐗𝐄 3.0★彡", // 
-    longDescription: "AI", 
-    category: "ai",
-    guide: {
-      en: "{p} questions",
-    },
-  },
-  onStart: async function () {},
-  onChat: async function ({ api, event, args, message }) {
+async function getAIResponse(input, messageID) {
     try {
-      
-      const prefix = Prefixes.find((p) => event.body && event.body.toLowerCase().startsWith(p));
-      if (!prefix) {
-        return; // Invalid prefix, ignore the command
-      }
-      const prompt = event.body.substring(prefix.length).trim();
+        const requestBody = {
+            model: "llama3-8b-8192",
+            messages: [
+                { role: "user", content: input }
+            ]
+        };
 
-      if (!prompt) {
-        await message.reply("𝐒𝐚𝐥𝐮𝐭 𝐥'𝐚𝐦𝐢(𝐞) 🎶❤️‍🔥😸 𝐉𝐞 𝐦𝐞 𝐧𝐨𝐦𝐦𝐞 ➣ ✘.𝚂𝙾𝙽𝙸𝙲〈 な 𝐓𝐡𝐞 𝐇𝐞𝐝𝐠𝐞𝐡𝐨𝐠 𝐁𝐨𝐭 🦔...𝐣𝐞 𝐬𝐮𝐢𝐬 𝐢𝐜𝐢 𝐩𝐨𝐮𝐫 𝐫𝐞𝐬𝐨𝐮𝐝𝐫𝐞 𝐭𝐞𝐬 𝐩𝐫𝐨𝐛𝐥𝐞𝐦𝐞𝐬...𝐪𝐮𝐞𝐥 𝐞𝐬𝐭 𝐥𝐞 𝐬𝐨𝐮𝐜𝐢 ⁉️");
-        return;
-      }
+        const response = await axios.post(url, requestBody, {
+            headers: {
+                "Authorization": `Bearer ${apiKey}`,
+                "Content-Type": "application/json"
+            }
+        });
 
-      if (prompt.toLowerCase() === "qui es-tu" || prompt.toLowerCase() === "qui es tu" || prompt.toLowerCase() === "qui es tu") {
-        await message.reply("Je suis une intelligence artificielle du Projet Hedgehog-Bot-V2 créé par le développeur ミ★𝐒𝐎𝐍𝐈𝐂✄𝐄𝐗𝐄 3.0★彡.");
-        return;
-      }
-
-      const response = await axios.get(`https://sandipbaruwal.onrender.com/gpt?prompt=${encodeURIComponent(prompt)}`);
-      const answer = response.data.answer;
-
-      await message.reply({ body: `➣ ✘.𝚂𝙾𝙽𝙸𝙲〈 な\n━━━━━━━━━━━━━━━━\n${answer}\n━━━━━━━━━━━━━━━━`, });
+        const reply = response.data.choices[0]?.message?.content || "Désolé, je n'ai pas de réponse pour le moment.";
+        return { response: reply, messageID };
 
     } catch (error) {
-      console.error("Error:", error.message);
+        console.error("Erreur API Groq:", error);
+        return { response: "Une erreur est survenue avec l'IA.", messageID };
     }
-  }
+}
+
+module.exports = {
+    config: {
+        name: 'ask',
+        author: 'messie', // modified by ミ★𝐒𝐎𝐍𝐈𝐂✄𝐄𝐗𝐄 3.0★彡
+        role: 0,
+        category: 'ai',
+        shortDescription: 'ai to ask anything',
+    },
+    onStart: async function ({ api, event, args }) {
+        const input = args.join(' ').trim();
+        if (!input) return;
+
+        let response;
+        if (input.toLowerCase() === "sonic") {
+            response = "𝐒𝐚𝐥𝐮𝐭 𝐥'𝐚𝐦𝐢(𝐞) 🎶❤️‍🔥😸 𝐉𝐞 𝐦𝐞 𝐧𝐨𝐦𝐦𝐞 ➣ ✘.𝚂𝙾𝙽𝙸𝙲〈 な 𝐓𝐡𝐞 𝐇𝐞𝐝𝐠𝐞𝐡𝐨𝐠 𝐁𝐨𝐭 🦔...𝐣𝐞 𝐬𝐮𝐢𝐬 𝐢𝐜𝐢 𝐩𝐨𝐮𝐫 𝐫𝐞𝐬𝐨𝐮𝐝𝐫𝐞 𝐭𝐞𝐬 𝐩𝐫𝐨𝐛𝐥𝐞𝐦𝐞𝐬...𝐪𝐮𝐞𝐥 𝐞𝐬𝐭 𝐥𝐞 𝐬𝐨𝐮𝐜𝐢 ⁉️";
+        } else {
+            const aiResponse = await getAIResponse(input, event.messageID);
+            response = aiResponse.response;
+        }
+
+        api.sendMessage(`➣ ✘.𝚂𝙾𝙽𝙸𝙲〈 な\n❦ ════ •⊰❂⊱• ════ ❦\n🪄| ${response} 🦔🤍🍓\n❦ ════ •⊰❂⊱• ════ ❦`, event.threadID, event.messageID);
+    },
+
+    onChat: async function ({ event, message }) {
+        const messageContent = event.body.trim();
+        if (!messageContent.toLowerCase().startsWith("sonic")) return;
+
+        let response;
+        if (messageContent.toLowerCase() === "sonic") {
+            response = "𝐒𝐚𝐥𝐮𝐭 𝐥'𝐚𝐦𝐢(𝐞) 🎶❤️‍🔥😸 𝐉𝐞 𝐦𝐞 𝐧𝐨𝐦𝐦𝐞 ➣ ✘.𝚂𝙾𝙽𝙸𝙲〈 な 𝐓𝐡𝐞 𝐇𝐞𝐝𝐠𝐞𝐡𝐨𝐠 𝐁𝐨𝐭 🦔...𝐣𝐞 𝐬𝐮𝐢𝐬 𝐢𝐜𝐢 𝐩𝐨𝐮𝐫 𝐫𝐞𝐬𝐨𝐮𝐝𝐫𝐞 𝐭𝐞𝐬 𝐩𝐫𝐨𝐛𝐥𝐞𝐦𝐞𝐬...𝐪𝐮𝐞𝐥 𝐞𝐬𝐭 𝐥𝐞 𝐬𝐨𝐮𝐜𝐢 ⁉️";
+        } else {
+            const input = messageContent.replace(/^sonic\s*/i, "").trim();
+            const aiResponse = await getAIResponse(input, event.messageID);
+            response = aiResponse.response;
+        }
+
+        message.reply(`➣ ✘.𝚂𝙾𝙽𝙸𝙲〈 な\n❦ ════ •⊰❂⊱• ════ ❦\n🪄| ${response} 🦔🤍🍓\n❦ ════ •⊰❂⊱• ════ ❦`);
+    }
 };
