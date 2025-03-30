@@ -5,7 +5,7 @@ module.exports.config = {
   credits: "Joshua Sy",
   description: "communism",
   commandCategory: "fun",
-  cooldowns: 2,
+  cooldowns: 0,
   dependencies: {
     canvas: "",
     axios: "",
