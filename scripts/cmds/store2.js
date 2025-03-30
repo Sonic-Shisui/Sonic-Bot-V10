@@ -4,7 +4,7 @@ const cmdUrlsJson = "https://raw.githubusercontent.com/ARYAN-AROHI-STORE/A4YA9-A
 const ITEMS_PER_PAGE = 10;
 
 module.exports.config = {
-  name: "store",
+  name: "store2",
   aliases: ["cs", "cmds"],
   author: "ARYAN 🐔",
   role: 2,
