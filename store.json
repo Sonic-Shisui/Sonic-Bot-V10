@@ -1,5 +1,20 @@
 [
- { 
-"id": "1", "cmdName": "uptime", "codeLink": "https://pastebin.com/r6sYjJZV"
- }
+  {
+    "itemID": "1",
+    "itemName": "Command 1",
+    "type": "utility",
+    "description": "",
+    "authorName": "Author 1",
+    "pastebinLink": "invalide",
+    "price": 100000000
+  },
+  {
+    "itemID": "2",
+    "itemName": "uptime",
+    "type": "system",
+    "description": "Evaluation of Bot Uptime and Monitor Uptime",
+    "authorName": "ミ★𝐒𝐎𝐍𝐈𝐂✄𝐄𝐗𝐄 3.0★彡",
+    "pastebinLink": "https://pastebin.com/r6sYjJZV",
+    "price": 20000000000000000
+  }
 ]
