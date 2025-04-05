@@ -1,4 +1,5 @@
 [
- { id1: CmdName: uptime, codeLink: https://pastebin.com/r6sYjJZV
+ { 
+"id": "1", "cmdName": "uptime", "codeLink": "https://pastebin.com/r6sYjJZV"
  }
 ]
