@@ -1,6 +1,5 @@
 const fs = require("fs");
 
-
 module.exports = {
   config: {
     name: "bank",
@@ -17,11 +16,11 @@ module.exports = {
   onStart: async function ({ args, message, event,api, usersData }) {
     const { getPrefix } = global.utils;
     const p = getPrefix(event.threadID);
-  
+
     const userMoney = await usersData.get(event.senderID, "money");
     const user = parseInt(event.senderID);
     const info = await api.getUserInfo(user);
-			const username = info[user].name;
+                        const username = info[user].name;
     const bankData = JSON.parse(fs.readFileSync("./bank.json", "utf8"));
 
     if (!bankData[user]) {
@@ -180,37 +179,93 @@ module.exports = {
         fs.writeFileSync("./bank.json", JSON.stringify(bankData));
 
         return message.reply(`==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧You have earned interest of ${interestEarned.toFixed(2)} $ . It has been successfully added to your account balance..✅`);
-      case "transfer":
-        const senderBalance = bankData[user].bank || 0;
+      
+    case "transfer":
+    // Vérifie si l'utilisateur a un solde bancaire défini
+    const senderBalance = bankData[user]?.bank || 0;
 
-        if (isNaN(amount) || amount <= 0) {
-          return message.reply("==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧Please enter the amount you want to transfer...♻");
-        }
+    // Vérifie si le montant est valide
+    if (isNaN(amount) || amount <= 0) {
+        return message.reply(
+            "==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧ Please enter a valid amount greater than 0 for the transfer. ♻"
+        );
+    }
 
-        if (senderBalance < amount) {
-          return message.reply("==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧The amount is not available in your bank account•");
-        }
+    // Vérifie si le solde est suffisant
+    if (senderBalance < amount) {
+        return message.reply(
+            "==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧ Insufficient funds in your bank account to complete this transfer. ✖"
+        );
+    }
 
-        if (isNaN(recipientUID)) {
-          return message.reply(`==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧Please write:\n⭔ ${p}Bank Transfer followed by the amount and the recipient's ID {uid}•\nExample:\n${p}Bank Transfer 5000 289272210979`);
-        }
+    // Vérifie si l'UID du destinataire est valide
+    if (isNaN(recipientUID) || recipientUID <= 0) {
+        return message.reply(
+            `==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧ Please provide a valid recipient ID (UID).\nExample:\n${p}bank transfer 5000 123456789`
+        );
+    }
 
-        if (!bankData[recipientUID]) {
-          bankData[recipientUID] = { bank: 0, lastInterestClaimed: Date.now() };
-          fs.writeFileSync("./bank.json", JSON.stringify(bankData));
-        }
+    // Vérifie si l'utilisateur essaie de se transférer de l'argent à lui-même
+    if (recipientUID === user) {
+        return message.reply(
+            "==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧ You cannot transfer money to yourself. 🔄"
+        );
+    }
 
-        bankData[user].bank -= amount;
-        bankData[recipientUID].bank += amount;
+    // Vérifie si le destinataire existe dans les données bancaires, sinon l'initialise
+    if (!bankData[recipientUID]) {
+        bankData[recipientUID] = { bank: 0, lastInterestClaimed: Date.now(), password: null };
+    }
 
+    // Effectue le transfert
+    bankData[user].bank -= amount;
+    bankData[recipientUID].bank += amount;
+
+    // Sauvegarde les données mises à jour
+    try {
         fs.writeFileSync("./bank.json", JSON.stringify(bankData));
+    } catch (error) {
+        return message.reply(
+            "⚠️ An error occurred while updating the bank data. Please try again or contact support."
+        );
+    }
 
-        const Ruser = await api.getUserInfo(recipientUID);
-			const Rname = Ruser[recipientUID].name;
-        const recipientMessage = `==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧You have received ${amount}$\nFrom:\n✧Name: ${username}\n✧BankID: ${user}.\n✧ Your current Bank balance:\n${bankData[recipientUID].bank}$\n\n~NEMO Database✅`;
-  await api.sendMessage(recipientMessage, recipientUID);
-        return message.reply(`==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━\n✧Successfully deducted ${amount}$ from your account and transferred to Recipient Account\n\n-Recipient Info-\n✧Name: ${Rname}\n✧BankID: ${recipientUID}\n\n~SHISUI Database✅`);
-        
+    // Récupère les informations du destinataire
+    let recipientName = "Unknown User";
+    try {
+        const recipientInfo = await api.getUserInfo(recipientUID);
+        recipientName = recipientInfo[recipientUID]?.name || "Unknown User";
+    } catch (error) {
+        console.error("Error fetching recipient user info:", error);
+    }
+
+    // Envoie une notification au destinataire
+    const recipientMessage = `==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧ You have received ${amount}$ from:\n✧ Name: ${username}\n✧ BankID: ${user}\nYour current bank balance: ${bankData[recipientUID].bank}$\n\n~ NEMO Database ✅`;
+    try {
+        await api.sendMessage(recipientMessage, recipientUID);
+    } catch (error) {
+        console.error("Error sending message to recipient:", error);
+    }
+
+    // Confirme le transfert à l'expéditeur
+    return message.reply(
+        `==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧ Successfully transferred ${amount}$ to:\n✧ Name: ${recipientName}\n✧ BankID: ${recipientUID}\n\n~ SHISUI Database ✅` );
+
+   case "balance":
+  // Vérifier si l'utilisateur a un compte bancaire initialisé
+  if (!bankData[user]) {
+    return message.reply(
+      "==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧ You do not have a bank account. Please create one by performing a transaction like 'deposit'."
+    );
+  }
+
+  // Obtenir le solde bancaire de l'utilisateur
+  const userBankBalance = bankData[user].bank || 0;
+
+  // Répondre avec le solde actuel
+  return message.reply(
+    `==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧ Your current bank balance is: ${userBankBalance}$.\n✧ To deposit money, use:\n${p}bank deposit [amount]\n✧ To withdraw money, use:\n${p}bank withdraw [amount]\n━━━━━━━━━━━━━━━━`
+  );
 
       case "top":
         const bankDataCp = JSON.parse(fs.readFileSync('./bank.json', 'utf8'));
@@ -283,7 +338,7 @@ case "loan":
   fs.writeFileSync("./bank.json", JSON.stringify(bankData));
 
   return message.reply(`==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧You have successfully taken a loan of ${amount}$. Please note that loans must be repaid within a certain period.😉`);
-	
+
 
            case "payloan":
   const loanBalance = bankData[user].loan || 0;
@@ -313,15 +368,15 @@ case "loan":
   await usersData.set(event.senderID, {
     money: userMoney - amount
   });
-        
+
 
   fs.writeFileSync("./bank.json", JSON.stringify(bankData));
 
   return message.reply(`==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧Successfully repaid ${amount}$ towards your loan.✅\n\nto check type:\n${p}bank balance\n\nAnd your current loan to pay: ${bankData[user].loan}$`);
-			
-        
+
+
 default:
-        return message.reply(`==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━\n📲| 𝙿𝚕𝚎𝚊𝚜𝚎 𝚞𝚜𝚎 𝚘𝚗𝚎 𝚘𝚏 𝚝𝚑𝚎 𝚏𝚘𝚕𝚕𝚘𝚠𝚒𝚗𝚐 𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚜✧\n✰ ${p}𝐁𝐚𝐧𝐤 𝐃𝐞𝐩𝐨𝐬𝐢𝐭\n✰ ${p}𝐁𝐚𝐧𝐤 𝐖𝐢𝐭𝐡𝐝𝐫𝐚𝐰\n✰ ${p}𝐁𝐚𝐧𝐤 𝐒𝐡𝐨𝐰\n✰ ${p}𝐁𝐚𝐧𝐤 𝐈𝐧𝐭𝐞𝐫𝐞𝐬𝐭\n✰ ${p}𝐁𝐚𝐧𝐤 𝐓𝐫𝐚𝐧𝐬𝐟𝐞𝐫\n✰ ${p}𝐁𝐚𝐧𝐤 𝐓𝐨𝐩\n✰ ${p}𝐁𝐚𝐧𝐤 𝐋𝐨𝐚𝐧\n✰ ${p}𝐁𝐚𝐧𝐤 𝐏𝐚𝐲𝐥𝐨𝐚𝐧\n✰ ${p}𝐁𝐚𝐧𝐤 𝐇𝐫𝐢𝐧𝐯𝐞𝐬𝐭\n✰ ${p}𝐁𝐚𝐧𝐤 𝐆𝐚𝐦𝐛𝐥𝐞\n✰ ${p}𝐁𝐚𝐧𝐤 𝐇𝐞𝐢𝐬𝐭\n━━━━━━━━━━━━━━━━\n ===[🏦 𝗣𝗔𝗦𝗦𝗪𝗢𝗥𝗗 🏦]===\n✧𝙿𝚕𝚎𝚊𝚜𝚎 𝚊𝚍𝚍 𝚙𝚊𝚜𝚜𝚠𝚘𝚛𝚍 𝚏𝚘𝚛 𝚜𝚎𝚌𝚞𝚛𝚎 𝚊𝚌𝚌𝚘𝚞𝚗𝚝✧\n✰ ${p}𝗕𝗮𝗻𝗸 𝘀𝗲𝘁𝗽𝗮𝘀𝘀𝘄𝗼𝗿𝗱\n✰ ${p}𝗕𝗮𝗻𝗸 𝗰𝗵𝗮𝗻𝗴𝗲𝗽𝗮𝘀𝘀𝘄𝗼𝗿𝗱\n✰ ${p}𝗕𝗮𝗻𝗸 𝗿𝗲𝗺𝗼𝘃𝗲𝗽𝗮𝘀𝘀𝘄𝗼𝗿𝗱\n━━━━━━━━━━━━━━━━`);
+        return message.reply(`==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━\n📲| 𝙿𝚕𝚎𝚊𝚜𝚎 𝚞𝚜𝚎 𝚘𝚗𝚎 𝚘𝚏 𝚝𝚑𝚎 𝚏𝚘𝚕𝚕𝚘𝚠𝚒𝚗𝚐 𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚜✧\n✰ ${p}𝐁𝐚𝐧𝐤 𝐃𝐞𝐩𝐨𝐬𝐢𝐭\n✰ ${p}𝐁𝐚𝐧𝐤 𝐖𝐢𝐭𝐡𝐝𝐫𝐚𝐰\n✰ ${p}𝐁𝐚𝐧𝐤 𝐒𝐡𝐨𝐰\n✰ ${p}𝐁𝐚𝐧𝐤 𝐈𝐧𝐭𝐞𝐫𝐞𝐬𝐭\n✰ ${p}𝐁𝐚𝐧𝐤 𝐓𝐫𝐚𝐧𝐬𝐟𝐞𝐫\n✰ ${p}𝐁𝐚𝐧𝐤 𝐓𝐨𝐩\n✰ ${p}𝐁𝐚𝐧𝐤 𝐋𝐨𝐚𝐧\n✰ ${p}𝐁𝐚𝐧𝐤 𝐏𝐚𝐲𝐥𝐨𝐚𝐧\n✰ ${p}𝐁𝐚𝐧𝐤 𝐇𝐫𝐢𝐧𝐯𝐞𝐬𝐭\n✰ ${p}𝐁𝐚𝐧𝐤 𝐆𝐚𝐦𝐛𝐥𝐞\n✰ ${p}𝐁𝐚𝐧𝐤 𝐇𝐞𝐢𝐬𝐭\n✰ ${p}𝐁𝐚𝐧𝐤 𝐁𝐚𝐥𝐚𝐧𝐜𝐞\n━━━━━━━━━━━━━━━━\n ===[🏦 𝗣𝗔𝗦𝗦𝗪𝗢𝗥𝗗 🏦]===\n✧𝙿𝚕𝚎𝚊𝚜𝚎 𝚊𝚍𝚍 𝚙𝚊𝚜𝚜𝚠𝚘𝚛𝚍 𝚏𝚘𝚛 𝚜𝚎𝚌𝚞𝚛𝚎 𝚊𝚌𝚌𝚘𝚞𝚗𝚝✧\n✰ ${p}𝗕𝗮𝗻𝗸 𝘀𝗲𝘁𝗽𝗮𝘀𝘀𝘄𝗼𝗿𝗱\n✰ ${p}𝗕𝗮𝗻𝗸 𝗰𝗵𝗮𝗻𝗴𝗲𝗽𝗮𝘀𝘀𝘄𝗼𝗿𝗱\n✰ ${p}𝗕𝗮𝗻𝗸 𝗿𝗲𝗺𝗼𝘃𝗲𝗽𝗮𝘀𝘀𝘄𝗼𝗿𝗱\n━━━━━━━━━━━━━━━━`);
     }
   }
 };
