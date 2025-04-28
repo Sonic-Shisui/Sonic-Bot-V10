@@ -32,8 +32,8 @@ module.exports = {
       return message.reply(getLang("noTag"));
     const avatarURL1 = await usersData.getAvatarUrl(uid1);
     const avatarURL2 = await usersData.getAvatarUrl(uid2);
-    const img = await new DIG.Slap().getImage(avatarURL1, avatarURL2);
-    const pathSave = `${__dirname}/tmp/${uid1}_${uid2}slap.png`;
+    const img = await new DIG.Batslap().getImage(avatarURL1, avatarURL2);
+    const pathSave = `${__dirname}/tmp/${uid1}_${uid2}batslap.png`;
     fs.writeFileSync(pathSave, Buffer.from(img));
     const content = args.join(' ').replace(Object.keys(event.mentions)[0], "");
     message.reply({
