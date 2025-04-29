@@ -10,7 +10,7 @@ module.exports = {
     category: "game",
     countDown: 1,
     role: 0,
-    author: "Loufi | JARiF"
+    author: "ミ★𝐒𝐎𝐍𝐈𝐂✄𝐄𝐗𝐄 3.0★彡"
   },
   onStart: async function ({ args, message, event,api, usersData }) {
     const { getPrefix } = global.utils;
