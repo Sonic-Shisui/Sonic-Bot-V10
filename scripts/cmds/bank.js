@@ -113,34 +113,47 @@ module.exports = {
     return message.reply(`==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧Congratulations! Your high-risk investment of ${investmentAmount}$ paid off, and you earned ${potentialReturns}$ in returns! 🎉`);
   }
         case "gamble":
+  // Vérifie si l'utilisateur est VIP
+  if (bankData[user].role !== "VIP") {
+    return message.reply(
+      "==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧ Only VIP users can access the 'gamble' feature.\n✧ Reach a bank balance of 100,000,000,000$ to unlock VIP status. 👑"
+    );
+  }
+
   const betAmount = parseInt(args[1]);
 
   if (isNaN(betAmount) || betAmount <= 0) {
-    return message.reply("==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧Please enter a valid amount to bet.💸");
+    return message.reply(
+      "==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧ Please enter a valid amount to bet.💸"
+    );
   }
 
   if (userMoney < betAmount) {
-    return message.reply("==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧You don't have enough money to place that bet.🙅‍♂");
+    return message.reply(
+      "==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧ You don't have enough money to place that bet. 🙅‍♂"
+    );
   }
 
-  const winChance = 1.5;
-  const isWin = Math.random() < winChance;
-
-  if (isWin) {
-    const winnings = betAmount * 2; 
+  const winChance = Math.random() < 0.5; // 50% chance to win
+  if (winChance) {
+    const winnings = betAmount * 2; // Gains doublés si l'utilisateur gagne
     bankData[user].bank += winnings;
     await usersData.set(event.senderID, {
       money: userMoney - betAmount + winnings
     });
     fs.writeFileSync("./bank.json", JSON.stringify(bankData));
-    return message.reply(`==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧Congratulations! You've won ${winnings}$! 🎉`);
+    return message.reply(
+      `==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧ Congratulations! You've won ${winnings}$! 🎉`
+    );
   } else {
     bankData[user].bank -= betAmount;
     await usersData.set(event.senderID, {
       money: userMoney - betAmount
     });
     fs.writeFileSync("./bank.json", JSON.stringify(bankData));
-    return message.reply(`==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧Oh no! You've lost ${betAmount}$ in the gamble. 😢`);
+    return message.reply(
+      `==[🏦 𝐔𝐂𝐇𝐈𝐖𝐀 𝐁𝐀𝐍𝐊 🏦]==\n━━━━━━━━━━━━━━━━\n✧ Oh no! You've lost ${betAmount}$ in the gamble. 😢`
+    );
   }
         case "heist":
   const heistSuccessChance = 0.2; 
