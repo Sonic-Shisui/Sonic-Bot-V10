@@ -1,16 +1,18 @@
 const fs = require("fs");
+
+
 module.exports = {
   config: {
     name: "bank",
     description: "Deposit or withdraw money from the bank and earn interest",
     guide: {
       vi: "",
-      en: "Bank:\nInterest - Balance - Withdraw - Deposit - Transfer - Richest - Loan - Payloan - Lottery - Gamble - HighRiskInvest[hrinvest] - Heist"
+      en: "Bank:\nInterest - Balance - Withdraw - Deposit - Transfer - Richest - VIP - Balance - Loan - Payloan - Lottery - Gamble - HighRiskInvest[hrinvest] - Heist"
     },
     category: "game",
     countDown: 1,
     role: 0,
-    author: "ミ★𝐒𝐎𝐍𝐈𝐂✄𝐄𝐗𝐄 3.0★彡"
+    author: "Loufi | JARiF"
   },
   onStart: async function ({ args, message, event,api, usersData }) {
     const { getPrefix } = global.utils;
