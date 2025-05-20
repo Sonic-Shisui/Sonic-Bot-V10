@@ -4,7 +4,7 @@
     aliases: ["lve"],
     version: "1.0",
     author: "ミ★𝐒𝐎𝐍𝐈𝐂✄𝐄𝐗𝐄 3.0★彡",
-    countDown: 10,
+    countDown: 5,
     role: 0,
     shortDescription: "Play miss, the oldest gambling game",
     longDescription: "Play miss, the oldest gambling game, and earn money",
@@ -23,11 +23,11 @@
     }
 
     if (!Number.isInteger(betAmount) || betAmount < 1000) {
-      return message.reply("👻| 𝑷𝒂𝒓𝒅𝒐𝒏 𝒅𝒆𝒎𝒂𝒏𝒅𝒆 𝒕𝒓𝒂𝒏𝒔𝒇𝒆𝒓𝒕 𝒂 𝒒𝒖𝒆𝒍𝒒𝒖'𝒖𝒏");
+      return message.reply("👻| 𝑴𝒊𝒔𝒆 𝒂𝒖 𝒎𝒐𝒊𝒏𝒔 𝟙𝟘𝟘𝟘€ 𝒐𝒖 𝒂𝒍𝒐𝒓𝒔 𝒅𝒆𝒎𝒂𝒏𝒅𝒆 𝒕𝒓𝒂𝒏𝒔𝒇𝒆𝒓𝒕 𝒂 𝒒𝒖𝒆𝒍𝒒𝒖'𝒖𝒏");
     }
 
     if (betAmount > userData.money) {
-      return message.reply("𝑪𝒐𝒏𝒕𝒊𝒏𝒖𝒔 𝒅𝒆 𝒑𝒆𝒓𝒅𝒓𝒆 𝒆𝒕 𝒕𝒐𝒏 𝒄𝒐𝒆𝒖𝒓 𝒔𝒆𝒓𝒂 𝒂 𝒎𝒐𝒊🫀");
+      return message.reply("𝑹𝒆𝒈𝒂𝒓𝒅𝒆𝒛 𝒎𝒐𝒊 𝒄𝒆𝒕 𝒆𝒏𝒅𝒆𝒕𝒕é 𝒒𝒖𝒊 𝒔𝒆 𝒄𝒓𝒐𝒊𝒕 𝒓𝒊𝒄𝒉𝒆 🙆");
     }
 
     const dice = [1, 2, 3, 4, 5, 6];
