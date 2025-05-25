@@ -16,7 +16,7 @@ module.exports = {
     longDescription: {
       en: "get bot owner info"
     },
-    category: "ownen",
+    category: "system",
     guide: {
       en: "{p}{n}"
     }
@@ -36,7 +36,7 @@ module.exports = {
         };
 
         const videoUrl = 
-["http://goatbiin.onrender.com/7Z6cQWGMn.jpg"];
+["http://goatbiin.onrender.com/_f2IBLHJ1.jpg"];
         const tmpFolderPath = path.join(__dirname, 'tmp');
 
         if (!fs.existsSync(tmpFolderPath)) {
