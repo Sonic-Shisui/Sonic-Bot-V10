@@ -9,7 +9,7 @@ module.exports = {
   config: {
     name: "prefix",
     version: "1.2",
-    author: "Copilot Chat",
+    author: "ミ★𝐒𝐎𝐍𝐈𝐂✄𝐄𝐗𝐄 3.0★彡",
     countDown: 5,
     role: 0,
     shortDescription: "Génère une image animée du préfixe du bot",
