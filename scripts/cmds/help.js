@@ -1,129 +1,162 @@
-const fs = require("fs-extra");
-const axios = require("axios");
-const path = require("path");
-const { getPrefix } = global.utils;
-const { commands, aliases } = global.GoatBot;
-const doNotDelete = "🌍| 𝐇𝐞𝐝𝐠𝐞𝐡𝐨𝐠-𝐁𝐨𝐭-𝐕2"; // changing this wont change the goatbot V2 of list cmd it is just a decoyy
+const { createCanvas } = require('canvas');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = {
   config: {
     name: "help",
-    version: "1.17",
-    author: "NTKhang", // modified by ミ★𝐒𝐎𝐍𝐈𝐂✄𝐄𝐗𝐄 3.0★彡
-    countDown: 0,
+    version: "2.0",
+    author: "ミ★𝐒𝐎𝐍𝐈𝐂✄𝐄𝐗𝐄 3.0★彡",
+    countDown: 5,
     role: 0,
-    shortDescription: {
-      en: "View command usage and list all commands directly",
-    },
-    longDescription: {
-      en: "View command usage and list all commands directly",
-    },
-    category: "system",
-    guide: {
-      en: "{pn} / help cmdName ",
-    },
-    priority: 1,
+    shortDescription: "Image téléphone avec la liste des commandes",
+    longDescription: "Génère une image d'un téléphone contenant la liste de toutes les commandes du bot en 5 colonnes.",
+    category: "system"
   },
 
-  onStart: async function ({ message, args, event, threadsData, role }) {
-    const { threadID } = event;
-    const threadData = await threadsData.get(threadID);
-    const prefix = getPrefix(threadID);
+  onStart: async function ({ message }) {
+    try {
+      // Chemin du dossier de commandes, à adapter si besoin :
+      const cmdsDir = __dirname;
+      const files = fs.readdirSync(cmdsDir)
+        .filter(f => f.endsWith('.js') && f !== 'help.js');
 
-    if (args.length === 0) {
-      const categories = {};
-      let msg = "╭──────🦔\n│➣ ✘.𝚂𝙾𝙽𝙸𝙲〈 な\n╰──────────────🦔\n";
-
-      msg += `━━━━━━━━━━━━━━━━\n`; // replace with your name 
-
-      for (const [name, value] of commands) {
-        if (value.config.role > 1 && role < value.config.role) continue;
-
-        const category = value.config.category || "Uncategorized";
-        categories[category] = categories[category] || { commands: [] };
-        categories[category].commands.push(name);
+      // Récupérer les noms des commandes
+      const commands = [];
+      for (const file of files) {
+        try {
+          const cmd = require(path.join(cmdsDir, file));
+          if (cmd.config && cmd.config.name)
+            commands.push(cmd.config.name);
+        } catch (e) {}
+      }
+      if (commands.length === 0) {
+        return message.reply("Aucune commande trouvée dans ce dossier.");
       }
 
-      Object.keys(categories).forEach((category) => {
-        if (category !== "info") {
-          msg += ` ╭─シ🌪✨${category.toUpperCase()}✨🌪\n`;
+      // --- Définir la taille dynamique du canvas selon le nombre de commandes ---
+      const cols = 5;
+      const colSpacing = 40;
+      const colWidth = 180;
+      const rowHeight = 34;
+      const phoneMargin = 50;
+      const screenPadX = 20;
+      const screenPadY = 40;
+      const titleHeight = 60;
+      const headerHeight = 35;
+      const btnHomeHeight = 60;
 
+      // Calcul du nombre de lignes par colonne
+      const commandsPerCol = Math.ceil(commands.length / cols);
+      // Calcul hauteur de l'écran selon nombre de lignes
+      const screenH = titleHeight + headerHeight + commandsPerCol * rowHeight + 40;
+      const screenW = cols * colWidth + (cols - 1) * colSpacing;
+      // Calcul taille totale du canvas
+      const width = screenW + phoneMargin * 2 + screenPadX * 2;
+      const height = screenH + phoneMargin * 2 + screenPadY * 2 + btnHomeHeight;
 
-          const names = categories[category].commands.sort();
-          for (let i = 0; i < names.length; i += 3) {
-            const cmds = names.slice(i, i + 3).map((item) => `│  🌿 ✘.${item}—シ🌿\n`);
-            msg += ` ${cmds.join(" ".repeat(Math.max(1, 10 - cmds.join("").length)))}`;
-          }
+      // Positionnement de l'écran sur le canvas
+      const screenX = phoneMargin + screenPadX;
+      const screenY = phoneMargin + screenPadY;
 
-          msg += ` ╰──────────────シ\n`;
+      const canvas = createCanvas(width, height);
+      const ctx = canvas.getContext('2d');
+
+      // Fond général
+      ctx.fillStyle = "#1a1a1a";
+      ctx.fillRect(0, 0, width, height);
+
+      // Corps du téléphone (bordures arrondies)
+      ctx.fillStyle = "#333";
+      ctx.beginPath();
+      ctx.moveTo(phoneMargin + 30, phoneMargin);
+      ctx.lineTo(width - phoneMargin - 30, phoneMargin);
+      ctx.quadraticCurveTo(width - phoneMargin, phoneMargin, width - phoneMargin, phoneMargin + 30);
+      ctx.lineTo(width - phoneMargin, height - phoneMargin - 30);
+      ctx.quadraticCurveTo(width - phoneMargin, height - phoneMargin, width - phoneMargin - 30, height - phoneMargin);
+      ctx.lineTo(phoneMargin + 30, height - phoneMargin);
+      ctx.quadraticCurveTo(phoneMargin, height - phoneMargin, phoneMargin, height - phoneMargin - 30);
+      ctx.lineTo(phoneMargin, phoneMargin + 30);
+      ctx.quadraticCurveTo(phoneMargin, phoneMargin, phoneMargin + 30, phoneMargin);
+      ctx.closePath();
+      ctx.fill();
+
+      // Écran du téléphone (bordures arrondies)
+      ctx.fillStyle = "#191d25";
+      ctx.strokeStyle = "#0099ff";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(screenX + 30, screenY);
+      ctx.lineTo(screenX + screenW - 30, screenY);
+      ctx.quadraticCurveTo(screenX + screenW, screenY, screenX + screenW, screenY + 30);
+      ctx.lineTo(screenX + screenW, screenY + screenH - 30);
+      ctx.quadraticCurveTo(screenX + screenW, screenY + screenH, screenX + screenW - 30, screenY + screenH);
+      ctx.lineTo(screenX + 30, screenY + screenH);
+      ctx.quadraticCurveTo(screenX, screenY + screenH, screenX, screenY + screenH - 30);
+      ctx.lineTo(screenX, screenY + 30);
+      ctx.quadraticCurveTo(screenX, screenY, screenX + 30, screenY);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Haut-parleur
+      ctx.fillStyle = "#444";
+      ctx.beginPath();
+      ctx.ellipse(width / 2, phoneMargin + 15, 55, 10, 0, 0, 2 * Math.PI);
+      ctx.fill();
+
+      // Titre - petit ("Hedgehog-Bot-V2")
+      ctx.font = "18px Arial";
+      ctx.fillStyle = "#00ffea";
+      ctx.textAlign = "center";
+      ctx.fillText("Hedgehog-Bot-V2", width / 2, screenY + 32);
+
+      // Affichage des commandes en 5 colonnes
+      ctx.font = "18px Arial";
+      ctx.fillStyle = "#fff";
+      ctx.textAlign = "left";
+
+      let colStarts = [];
+      for (let c = 0; c < cols; c++) {
+        colStarts[c] = screenX + c * (colWidth + colSpacing);
+      }
+      let startY = screenY + 32 + headerHeight; // sous le titre
+
+      let idx = 0;
+      for (let c = 0; c < cols; c++) {
+        let y = startY;
+        for (let r = 0; r < commandsPerCol && idx < commands.length; r++) {
+          ctx.fillText(`${idx + 1}. ${commands[idx]}`, colStarts[c], y);
+          y += rowHeight;
+          idx++;
         }
-      });
+      }
 
-      const totalCommands = commands.size;
-      msg += `𝐀𝐜𝐭𝐮𝐞𝐥𝐥𝐞𝐦𝐞𝐧𝐭 𝐥𝐞 𝐇𝐞𝐝𝐠𝐞𝐡𝐨𝐠𝐛𝐨𝐭 𝐝𝐢𝐬𝐩𝐨𝐬𝐞 𝐝𝐞 🎶${totalCommands}𝐜𝐨𝐦𝐦𝐚𝐧𝐝𝐞𝐬🎶\n`;
-      msg += `𝐒𝐚𝐢𝐬𝐢𝐬 ${prefix}𝐡𝐞𝐥𝐩 𝐬𝐮𝐢𝐯𝐢 𝐝𝐮 𝐧𝐨𝐦 𝐝𝐞 𝐥𝐚 𝐜𝐨𝐦𝐦𝐚𝐧𝐝𝐞 𝐩𝐨𝐮𝐫 𝐚𝐯𝐨𝐢𝐫 𝐩𝐥𝐮𝐬 𝐝𝐞 𝐝𝐞𝐭𝐚𝐢𝐥𝐬 𝐬𝐮𝐫 𝐥𝐚 𝐜𝐨𝐦𝐦𝐚𝐧𝐝𝐞\n━━━━━━━━━━━━━━━\n`;
-      msg += `╭───────⌾\n│📣...|\n│➣ ✘.𝚂𝙾𝙽𝙸𝙲〈 な\n│🌿| 𝐎𝐰𝐧𝐞𝐫 : \n│ミ★𝐒𝐎𝐍𝐈𝐂✄𝐄𝐗𝐄 3.0★彡\n│🌪| 𝐋𝐢𝐧𝐤'𝐬 𝐅𝐚𝐜𝐞𝐛𝐨𝐨𝐤 :\n│ https://facebook.com/hentai.san.1492\n╰──────────────⌾`; // its not decoy so change it if you want 
+      // Bouton Home
+      ctx.beginPath();
+      ctx.arc(width / 2, height - phoneMargin - 25, 20, 0, 2 * Math.PI);
+      ctx.fillStyle = "#23272f";
+      ctx.fill();
+      ctx.strokeStyle = "#444";
+      ctx.lineWidth = 3;
+      ctx.stroke();
 
-      const helpListImages = [
-"https://i.ibb.co/TcGjWrp/image.gif",
-"http://goatbiin.onrender.com/SOVcPEhh2.gif",
-        // Add more image links as needed
-      ];
-
-      const helpListImage = helpListImages[Math.floor(Math.random() * helpListImages.length)];
+      // Sauvegarder temporairement le fichier (obligatoire sur Goatbot/Sonic pour l'envoi en pièce jointe)
+      const imgPath = path.join(cmdsDir, `help_phone_${Date.now()}.png`);
+      fs.writeFileSync(imgPath, canvas.toBuffer());
 
       await message.reply({
-        body: msg,
-        attachment: await global.utils.getStreamFromURL(helpListImage),
+        body: "Voici la liste des commandes du bot :",
+        attachment: fs.createReadStream(imgPath)
       });
-    } else {
-      const commandName = args[0].toLowerCase();
-      const command = commands.get(commandName) || commands.get(aliases.get(commandName));
 
-      if (!command) {
-        await message.reply(`Command "${commandName}" not found.`);
-      } else {
-        const configCommand = command.config;
-        const roleText = roleTextToString(configCommand.role);
-        const author = configCommand.author || "Unknown";
+      // Nettoyage du fichier temporaire
+      setTimeout(() => {
+        try { fs.unlinkSync(imgPath); } catch {}
+      }, 30_000);
 
-        const longDescription = configCommand.longDescription ? configCommand.longDescription.en || "No description" : "No description";
-
-        const guideBody = configCommand.guide?.en || "No guide available.";
-        const usage = guideBody.replace(/{p}/g, prefix).replace(/{n}/g, configCommand.name);
-
-        const response = `╭── NAME ────シ
-  │ ${configCommand.name}
-  ├── INFO
-  │ Description: ${longDescription}
-  │ Other names: ${configCommand.aliases ? configCommand.aliases.join(", ") : "Do not have"}
-  │ Other names in your group: Do not have
-  │ Version: ${configCommand.version || "1.0"}
-  │ Role: ${roleText}
-  │ Time per command: ${configCommand.countDown || 1}s
-  │ Author: ${author}
-  ├── Usage
-  │ ${usage}
-  ├── Notes
-  │ The content inside <XXXXX> can be changed
-  │ The content inside [a|b|c] is a or b or c
-  ╰━━━━━━━シ`;
-
-        await message.reply(response);
-      }
+    } catch (e) {
+      return message.reply("Erreur lors de la génération de l'image : " + e.message);
     }
-  },
-};
-
-function roleTextToString(roleText) {
-  switch (roleText) {
-    case 0:
-      return "0 (All users)";
-    case 1:
-      return "1 (Group administrators)";
-    case 2:
-      return "2 (Admin bot)";
-    default:
-      return "Unknown role";
   }
-	    }
+};
