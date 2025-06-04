@@ -14,10 +14,12 @@ module.exports = {
     description: "Change ou affiche le préfixe du bot (global ou local) et génère un GIF animé.",
     category: "config",
     guide: {
-      fr: "   {pn} <nouveau prefix> : change le préfixe dans ce salon\n"
+      fr: "   {pn} : affiche les préfixes actuels\n"
+        + "   {pn} <nouveau prefix> : change le préfixe dans ce salon\n"
         + "   {pn} <nouveau prefix> -g : change le préfixe global (admin seulement)\n"
         + "   {pn} reset : remet le préfixe local par défaut",
-      en: "   {pn} <new prefix>: change prefix in this thread\n"
+      en: "   {pn} : displays current prefixes\n"
+        + "   {pn} <new prefix>: change prefix in this thread\n"
         + "   {pn} <new prefix> -g: change global prefix\n"
         + "   {pn} reset: reset thread prefix to default"
     }
@@ -31,7 +33,7 @@ module.exports = {
       confirmThread: "Réagis à ce message pour confirmer le changement du préfixe du salon.",
       successGlobal: "Préfixe global changé pour : %1",
       successThread: "Préfixe du salon changé pour : %1",
-      myPrefix: "╭─⌾🌿𝙷𝙴𝙳𝙶𝙴𝙷𝙾𝙶🌿\n│🦔| 𝐒𝐲𝐬𝐭𝐞𝐦 𝐏𝐫𝐞𝐟𝐢𝐱 : %1\n│🔖| 𝐁𝐨𝐱 𝐂𝐡𝐚𝐭 𝐏𝐫𝐞𝐟𝐢𝐱 : %2\n╰──────────⌾"
+      myPrefix: "╭─⌾🌿𝙷𝙴𝐃𝐆𝐄𝐇𝐎𝐆🌿\n│🦔| 𝐒𝐲𝐬𝐭𝐞𝐦 𝐏𝐫𝐞𝐟𝐢𝐱 : %1\n│🔖| 𝐁𝐨𝐱 𝐂𝐡𝐚𝐭 𝐏𝐫𝐞𝐟𝐢𝐱 : %2\n╰──────────⌾"
     },
     en: {
       reset: "Thread prefix has been reset to default: %1",
@@ -40,27 +42,28 @@ module.exports = {
       confirmThread: "React to this message to confirm changing the thread prefix.",
       successGlobal: "System (global) prefix changed to: %1",
       successThread: "Thread prefix changed to: %1",
-      myPrefix: "╭─⌾🌿𝙷𝙴𝙳𝐆𝐄𝐇𝐎𝐆🌿\n│🦔| 𝐒𝐲𝐬𝐭𝐞𝐦 𝐏𝐫𝐞𝐟𝐢𝐱: %1\n│🔖| 𝐁𝐨𝐱 𝐂𝐡𝐚𝐭 𝐏𝐫𝐞𝐟𝐢𝐱 : %2\n╰──────────⌾"
+      myPrefix: "╭─⌾🌿𝙷𝙴𝐃𝐆𝐄𝐇𝐎𝐆🌿\n│🦔| 𝐒𝐲𝐬𝐭𝐞𝐦 𝐏𝐫𝐞𝐟𝐢𝐱: %1\n│🔖| 𝐁𝐨𝐱 𝐂𝐡𝐚𝐭 𝐏𝐫𝐞𝐟𝐢𝐱 : %2\n╰──────────⌾"
     }
   },
 
   generatePrefixGif: async function(systemPrefix, threadPrefix) {
     try {
       const lines = [
-        "╭─⌾🌿𝙷𝙴𝙳𝙶𝙴𝙷𝙾𝙶🌿",
+        "╭─⌾🌿𝙷𝙴𝐃𝐆𝐄𝐇𝐎𝐆🌿",
         `│🦔| 𝐒𝐲𝐬𝐭𝐞𝐦 𝐏𝐫𝐞𝐟𝐢𝐱 : ${systemPrefix}`,
         `│🔖| 𝐁𝐨𝐱 𝐂𝐡𝐚𝐭 𝐏𝐫𝐞𝐟𝐢𝐱 : ${threadPrefix}`,
         "╰──────────⌾"
       ];
       const fullText = lines.join('\n');
-      const neonColors = ["#00FFD0", "#39FF14", "# "#FF006F"];
+      const neonColors = ["#00FFD0", "#39FF14", "#FF00DE", "#FFFB00", "#00B3FF", "#FF006F"];
 
       const width = 500, height = 250;
       const encoder = new GIFEncoder(width, height);
+      // Removed special characters from gifName to ensure valid filename
       const gifName = `prefix_${systemPrefix.replace(/[^a-z0-9]/gi,'')}_${threadPrefix.replace(/[^a-z0-9]/gi,'')}.gif`;
       const gifPath = path.join(__dirname, gifName);
 
-      // Si le gif existe déjà, ne pas le régénérer
+      // If the gif exists, return it instead of regenerating
       if (fs.existsSync(gifPath)) return gifPath;
 
       const out = fs.createWriteStream(gifPath);
@@ -90,7 +93,7 @@ module.exports = {
           ctx.fillStyle = neonColors[l % neonColors.length];
           ctx.strokeText(textToDraw, 32, y);
           ctx.fillText(textToDraw, 32, y);
-          charIdx += line.length + 1;
+          charIdx += line.length + 1; // +1 for the newline character
           y += 48;
         }
         encoder.addFrame(ctx);
@@ -112,8 +115,8 @@ module.exports = {
     const systemPrefix = global.GoatBot.config.prefix;
     const threadPrefix = await threadsData.get(event.threadID, "data.prefix") || systemPrefix;
 
-    // Affiche sans changement
-    if (!args[0]) {
+    // If no arguments are provided (i.e., just "prefix" was typed)
+    if (args.length === 0) {
       const gifPath = await this.generatePrefixGif(systemPrefix, threadPrefix);
       return message.reply({
         body: getLang("myPrefix", systemPrefix, threadPrefix),
@@ -121,22 +124,27 @@ module.exports = {
       });
     }
 
-    // Reset local
+    // Reset local prefix
     if (args[0] === "reset") {
       await threadsData.set(event.threadID, null, "data.prefix");
       const updatedThreadPrefix = await threadsData.get(event.threadID, "data.prefix") || systemPrefix;
-      const gifPath = await thisPath)
+      const gifPath = await this.generatePrefixGif(systemPrefix, updatedThreadPrefix);
+      return message.reply({
+        body: getLang("reset", systemPrefix),
+        attachment: fs.createReadStream(gifPath)
       });
     }
 
-    // Changement de préfixe
+    // Prefix change logic
     const newPrefix = args[0];
     const isGlobal = args[1] === "-g";
     const confirmMsg = isGlobal ? getLang("confirmGlobal") : getLang("confirmThread");
 
-    if (isGlobal && role < 2)
+    if (isGlobal && role < 2) { // Assuming role 2 or higher is admin
       return message.reply(getLang("onlyAdmin"));
+    }
 
+    // Confirmation logic
     message.reply(confirmMsg, (err, info) => {
       if (info) {
         global.GoatBot.onReaction.set(info.messageID, {
@@ -156,6 +164,7 @@ module.exports = {
     if (isGlobal) {
       global.GoatBot.config.prefix = newPrefix;
       fs.writeFileSync(global.client.dirConfig, JSON.stringify(global.GoatBot.config, null, 2));
+      // Generate GIF with the NEW global prefix
       const gifPath = await this.generatePrefixGif(newPrefix, newPrefix);
       return message.reply({
         body: getLang("successGlobal", newPrefix),
@@ -164,9 +173,20 @@ module.exports = {
     } else {
       await threadsData.set(event.threadID, newPrefix, "data.prefix");
       const systemPrefix = global.GoatBot.config.prefix;
-      const gifPath = await this.generatePrefixGif await threadsData.get(event.threadID, "data.prefix") || systemPrefix;
-    // Affiche le GIF quand l'utilisateur tape juste le préfixe du bot (global ou local)
-    if (event.body && (event.body === systemPrefix || event.body === threadPrefix)) {
+      // Generate GIF with the system prefix and the NEW thread prefix
+      const gifPath = await this.generatePrefixGif(systemPrefix, newPrefix);
+      return message.reply({
+        body: getLang("successThread", newPrefix),
+        attachment: fs.createReadStream(gifPath)
+      });
+    }
+  },
+
+  onChat: async function({ event, message, getLang, threadsData }) {
+    const systemPrefix = global.GoatBot.config.prefix;
+    const threadPrefix = await threadsData.get(event.threadID, "data.prefix") || systemPrefix;
+
+    if (event.body === systemPrefix) { // If the message is exactly the system prefix
       const gifPath = await this.generatePrefixGif(systemPrefix, threadPrefix);
       return message.reply({
         body: getLang("myPrefix", systemPrefix, threadPrefix),
